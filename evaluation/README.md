@@ -1,0 +1,3 @@
+- Test the cobol and java code for equivalent behaviour
+- Some static code analysis
+- Code Quality
