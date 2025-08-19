@@ -14,6 +14,9 @@ from transformers import AutoModelForCausalLM, AutoTokenizer
 
 
 class LLM():
+    """
+    Easy wrapper around huggingface model for predicting text
+    """
     def __init__(self):
         self.model_name = os.getenv("MODEL_NAME")
         
