@@ -50,37 +50,39 @@ class ConverterHelper:
         self.system_prompt = system_prompt()
         self.output_dir = output_dir
 
-    def _get_conversion_prompt(self, cobol_code: str):
+    def _get_conversion_prompt(self, cobol_code: str, ast: str = None) -> str:
         """
         Builds the conversion prompt and returns it according to the selected conversion type
         """
         if self.conversion_type == ConversionType.BASE:
             return convert_prompt_base(cobol_code)
         elif self.conversion_type == ConversionType.AST:
-            return convert_prompt_with_ast(cobol_code)
+            return convert_prompt_with_ast(cobol_code, ast)
 
-    def cob_2_java(
-        self,
-        cobol_code: str | Path,
-    ) -> Path:
+    def cob_2_java(self, cobol_code: str | Path, ast: str = None) -> Path:
         """
         Converts the cobol code to java using an llm and outputs the resulting java file
         The conversion is done accoding to the specified ConversionType
 
         Args:
             cobol_code (str|Path): the cobol code that is to be converted as string OR the path to the file containing the code
-            output_filename (str, optional): the name of the output file. Defaults to "example_filename.java".
-
+            ast (str) optional; abstract syntax tree representation of cobol code. Required if ConversionType.AST is set
         Returns:
             Path: The path of the generated *.java file
         """
+        if self.conversion_type == ConversionType.AST:
+            if ast is None:
+                raise ValueError(
+                    "Parameter ast is None. Is required, if conversion_type AST is selected."
+                )
+
         if os.path.exists(cobol_code):
             with open(cobol_code, "r") as cobol_file:
                 src = cobol_file.read()
         else:
             src: str = cobol_code
 
-        self.conversion_prompt = self._get_conversion_prompt(src)
+        self.conversion_prompt = self._get_conversion_prompt(src, ast)
         java_code = self.llm.predict(
             prompt=self.conversion_prompt, system_prompt=self.system_prompt
         )
@@ -195,14 +197,23 @@ class ConverterHelper:
 
 
 def main():
-    llm = LLM()
-    converter = ConverterHelper(llm, ConversionType.BASE)
+    # llm = LLM()
+    # converter = ConverterHelper(llm, ConversionType.BASE)
     cobol_code_path = Path("/home/schafhdaniel@edu.local/cobolToJava/in_cob_file.cbl")
-    java_filepath = converter.cob_2_java(
-        cobol_code=cobol_code_path,
-    )
-    java_programm_path = converter.compile(java_filepath)
-    converter.run_java_programm(java_programm_path)
+    # java_filepath = converter.cob_2_java(
+    #     cobol_code=cobol_code_path,
+    # )
+    # java_programm_path = converter.compile(java_filepath)
+    # converter.run_java_programm(java_programm_path)
+
+    # converter.convert_compile_run(cobol_code_path)
+
+    # converter_ast = ConverterHelper(llm, ConversionType.AST)
+    # converter_ast.convert_compile_run(cobol_code_path, ast)
+
+    # with open(cobol_code_path, "r") as file:
+    # result = parse_file(cobol_code_path)
+    # print(result)
 
 
 if __name__ == "__main__":

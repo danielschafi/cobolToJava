@@ -1,0 +1,70 @@
+# Java
+Install java runtime and compiler
+
+
+cd ~
+wget https://download.oracle.com/java/21/archive/jdk-21.0.6_linux-x64_bin.tar.gz
+tar -xzf jdk-21.0.6_linux-x64_bin.tar.gz
+mv jdk-21.0.6 ~/jdk-21
+
+echo 'export JAVA_HOME=$HOME/jdk-21' >> ~/.bashrc
+echo 'export PATH=$JAVA_HOME/bin:$PATH' >> ~/.bashrc
+source ~/.bashrc
+
+java -version
+javac -version
+
+
+
+# Antlr
+Install COBOL85 grammar files etc. since we cant use apt-get ti usbtak us
+
+1. Download ANTLR jar
+wget https://www.antlr.org/download/antlr-4.13.1-complete.jar -O antlr-4.13.1-complete.jar
+
+2. Set up an alias , replace ~/cobolToJava/ with wherever you saved the JAR
+alias antlr4='java -jar ~/cobolToJava/antlr-4.13.1-complete.jar'
+alias grun='java -jar ~/cobolToJava/antlr-4.13.1-complete.jar org.antlr.v4.gui.TestRig'
+
+Download the COBOL85 grammar files
+wget https://raw.githubusercontent.com/antlr/grammars-v4/master/cobol85/Cobol85.g4
+wget https://raw.githubusercontent.com/antlr/grammars-v4/master/cobol85/Cobol85Preprocessor.g4
+
+
+
+3. Run ANTLR to generate the parser
+java -jar antlr-4.13.1-complete.jar -Dlanguage=Python3 Cobol85.g4 Cobol85Preprocessor.g4
+
+3. Install the ANTLR Python runtime
+pip install antlr4-python3-runtime
+
+
+
+
+# proleap
+#maven
+
+wget https://dlcdn.apache.org/maven/maven-3/3.9.11/binaries/apache-maven-3.9.11-bin.tar.gz
+tar  -xvzf apache-maven-3.9.11-bin.tar.gz -C $HOME
+
+Add maven to path
+vim ~/.bashrc
+
+add at bottom
+export M2_HOME=$HOME/apache-maven-3.9.11
+export PATH=$M2_HOME/bin:$PATH
+
+reload
+source ~/.bashrc
+
+
+test
+mvn -version
+
+
+
+build proleap 
+cd ~/cobolToJava
+git clone https://github.com/uwol/proleap-cobol-parser.git
+cd proleap-cobol-parser
+mvn clean install
