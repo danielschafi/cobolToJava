@@ -14,3 +14,6 @@ Since test case generation is not working right now but i want to have some prog
 5. Prompt to translate it with AST
 6. convert it to java with AST
 7. Try to compile and run it
+
+
+Tell it to translate it to java ONLY from the COBOL AST

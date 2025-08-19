@@ -7,8 +7,7 @@ def convert_prompt_base(cobol_code: str) -> str:
 
 
 def convert_prompt_with_ast(cobol_code: str, ast: str) -> str:
-    return f"""Convert this cobol code that is compilable by the GNUCobol compiler into Java. The resulting Java code MUST be equivalent in functionality. 
-The same inputs MUST result in the same outputs!
+    return f"""
 BEGIN COBOL CODE:
 {cobol_code}
 END COBOL CODE

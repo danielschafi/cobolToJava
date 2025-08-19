@@ -1,6 +1,8 @@
+from html import parser
 import os
 from dotenv import load_dotenv
 import shutil
+from cobolToJavaTranslator.cobolAstParser import CobolASTParser
 
 load_dotenv()
 
@@ -196,25 +198,52 @@ class ConverterHelper:
         self.run_java_programm(java_programm_path)
 
 
+def prepare_for_ast_extraction(filepath: Path):
+    """
+    The parser is bad at handling comments, before feeding it to the parser, remove all comments from the file
+    and write it to a temp file
+    """
+    temp_file_path = filepath.with_suffix(".temp")
+    with open(filepath, "r") as original_file, open(temp_file_path, "w") as temp_file:
+        for line in original_file:
+            # Remove COBOL comments
+            # Remove lines that start with an asterisk (*) after optional whitespace
+            if re.match(r'^\s*\*', line):
+                continue
+            # Remove lines that are all asterisks (banner comments)
+            if re.match(r'^\s*\*+\s*$', line):
+                continue
+            # Remove lines that are all asterisks and spaces (common COBOL banner)
+            if re.match(r'^\s*\*{2,}\s*$', line):
+                continue
+            # Remove lines that are only spaces and asterisks (sometimes used for block comments)
+            if re.match(r'^\s*[\* ]+\s*$', line):
+                continue
+            line = re.sub(r"\s*EXEC\s+.*?END-EXEC\s*", "", line)
+            temp_file.write(line)
+    return temp_file_path
+
+
+
+
 def main():
-    # llm = LLM()
-    # converter = ConverterHelper(llm, ConversionType.BASE)
+    llm = LLM()
+    converter = ConverterHelper(llm, ConversionType.BASE)
     cobol_code_path = Path("/home/schafhdaniel@edu.local/cobolToJava/in_cob_file.cbl")
-    # java_filepath = converter.cob_2_java(
-    #     cobol_code=cobol_code_path,
-    # )
-    # java_programm_path = converter.compile(java_filepath)
-    # converter.run_java_programm(java_programm_path)
 
-    # converter.convert_compile_run(cobol_code_path)
+    # # converter.convert_compile_run(cobol_code_path)
 
-    # converter_ast = ConverterHelper(llm, ConversionType.AST)
-    # converter_ast.convert_compile_run(cobol_code_path, ast)
-
-    # with open(cobol_code_path, "r") as file:
-    # result = parse_file(cobol_code_path)
-    # print(result)
-
+    # temp_file = prepare_for_ast_extraction(cobol_code_path)
+    # parser = CobolASTParser()
+    # ast = parser.parse_cobol_file(temp_file)
+    # print(ast)
+    
+    # converter = ConverterHelper(llm, ConversionType.AST)
+    # converter.cob_2_java(cobol_code=cobol_code_path, ast=ast)
+    # converter.convert_compile_run(cobol_code_path, ast=ast)
+    java_path = Path("/home/schafhdaniel@edu.local/cobolToJava/out_dir/IFPGM.java")
+    path = converter.compile(java_path)
+    converter.run_java_programm(path)
 
 if __name__ == "__main__":
     main()
